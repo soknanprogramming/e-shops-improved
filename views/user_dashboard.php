@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // 1.1 Fetch User Status (to check for pending requests)
-$stmtUser = $conn->prepare("SELECT name, can_post, request_post_permission FROM User WHERE id = ?");
+$stmtUser = $conn->prepare("SELECT name, can_post, request_post_permission FROM user WHERE id = ?");
 $stmtUser->execute([$_SESSION['user_id']]);
 $currentUser = $stmtUser->fetch();
 
@@ -26,7 +26,7 @@ $productRepo = new ProductRepository($conn);
 if (!empty($search)) {
     $myProducts = $productRepo->getByOwnerIdWithSearch($_SESSION['user_id'], $search);
 } else {
-    $stmt = $conn->prepare("SELECT p.*, pi.main_image, c.name as category_name FROM Product p LEFT JOIN product_image pi ON p.product_image_id = pi.id LEFT JOIN category c ON p.category_id = c.id WHERE p.owner_id = ? ORDER BY p.created_at DESC");
+    $stmt = $conn->prepare("SELECT p.*, pi.main_image, c.name as category_name FROM product p LEFT JOIN product_image pi ON p.product_image_id = pi.id LEFT JOIN category c ON p.category_id = c.id WHERE p.owner_id = ? ORDER BY p.created_at DESC");
     $stmt->execute([$_SESSION['user_id']]);
     $myProducts = $stmt->fetchAll();
 }

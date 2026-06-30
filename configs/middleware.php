@@ -34,7 +34,7 @@ function checkRememberCookie(PDO $conn): void {
     $stmt = $conn->prepare("
         SELECT us.user_id, u.name, u.is_admin, u.can_post
         FROM user_sessions us
-        JOIN User u ON u.id = us.user_id
+        JOIN user u ON u.id = us.user_id
         WHERE us.token = :token AND us.expires_at > NOW()
         LIMIT 1
     ");

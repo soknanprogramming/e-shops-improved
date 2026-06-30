@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // 2. Fetch fresh user permissions (also grab request_post_permission for the UI)
-$stmtUser = $conn->prepare("SELECT can_post, name, request_post_permission FROM User WHERE id = ?");
+$stmtUser = $conn->prepare("SELECT can_post, name, request_post_permission FROM user WHERE id = ?");
 $stmtUser->execute([$_SESSION['user_id']]);
 $user    = $stmtUser->fetch();
 $canPost = ($user && $user['can_post'] == 1);

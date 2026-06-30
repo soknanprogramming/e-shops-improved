@@ -9,10 +9,10 @@ class ProductRepository {
 
     public function getAll() {
         $sql = "SELECT p.*, pi.main_image, c.name as category_name, u.name as owner_name 
-                FROM Product p 
+                FROM product p 
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id 
                 LEFT JOIN category c ON p.category_id = c.id
-                LEFT JOIN User u ON p.owner_id = u.id
+                LEFT JOIN user u ON p.owner_id = u.id
                 ORDER BY p.id DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
@@ -21,10 +21,10 @@ class ProductRepository {
 
     public function search($params = []) {
         $sql = "SELECT p.*, pi.main_image, c.name as category_name, u.name as owner_name 
-                FROM Product p 
+                FROM product p 
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id 
                 LEFT JOIN category c ON p.category_id = c.id
-                LEFT JOIN User u ON p.owner_id = u.id
+                LEFT JOIN user u ON p.owner_id = u.id
                 WHERE 1=1";
         
         $args = [];
@@ -107,9 +107,9 @@ class ProductRepository {
 
     public function countSearch($params = []) {
         $sql = "SELECT COUNT(*) as total 
-                FROM Product p 
+                FROM product p 
                 LEFT JOIN category c ON p.category_id = c.id
-                LEFT JOIN User u ON p.owner_id = u.id
+                LEFT JOIN user u ON p.owner_id = u.id
                 WHERE 1=1";
         
         $args = [];
@@ -157,10 +157,10 @@ class ProductRepository {
 
     public function getByCategoryId($categoryId) {
         $sql = "SELECT p.*, pi.main_image, c.name as category_name, u.name as owner_name 
-                FROM Product p 
+                FROM product p 
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id 
                 LEFT JOIN category c ON p.category_id = c.id
-                LEFT JOIN User u ON p.owner_id = u.id
+                LEFT JOIN user u ON p.owner_id = u.id
                 WHERE p.category_id = :category_id
                 ORDER BY p.id DESC";
         $stmt = $this->conn->prepare($sql);
@@ -170,7 +170,7 @@ class ProductRepository {
 
     public function getByOwnerId($ownerId) {
         $sql = "SELECT p.*, pi.main_image, c.name as category_name
-                FROM Product p
+                FROM product p
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id
                 LEFT JOIN category c ON p.category_id = c.id
                 WHERE p.owner_id = :owner_id
@@ -182,7 +182,7 @@ class ProductRepository {
 
     public function getByOwnerIdWithSearch($ownerId, $search = '') {
         $sql = "SELECT p.*, pi.main_image, c.name as category_name
-                FROM Product p
+                FROM product p
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id
                 LEFT JOIN category c ON p.category_id = c.id
                 WHERE p.owner_id = :owner_id";
@@ -207,10 +207,10 @@ class ProductRepository {
                        c.name as category_name, 
                        u.name as owner_name,
                        up.phone1, up.phone2
-                FROM Product p 
+                FROM product p 
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id 
                 LEFT JOIN category c ON p.category_id = c.id
-                LEFT JOIN User u ON p.owner_id = u.id
+                LEFT JOIN user u ON p.owner_id = u.id
                 LEFT JOIN user_profile up ON p.profile_id = up.id
                 WHERE p.id = :id";
         $stmt = $this->conn->prepare($sql);

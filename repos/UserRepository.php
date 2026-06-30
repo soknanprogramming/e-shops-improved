@@ -9,7 +9,7 @@ class UserRepository {
 
     public function create(array $data) {
         // can_post and request_post_permission are included so auth.php can set them on register
-        $sql = "INSERT INTO `User` (name, first_name, last_name, email, password, provider, provider_id, avatar, is_admin, can_post, request_post_permission) 
+        $sql = "INSERT INTO `user` (name, first_name, last_name, email, password, provider, provider_id, avatar, is_admin, can_post, request_post_permission) 
                 VALUES (:name, :first_name, :last_name, :email, :password, :provider, :provider_id, :avatar, :is_admin, :can_post, :request_post_permission)";
         
         $stmt = $this->conn->prepare($sql);
@@ -32,21 +32,21 @@ class UserRepository {
     }
 
     public function findById($id) {
-        $sql = "SELECT * FROM `User` WHERE id = :id";
+        $sql = "SELECT * FROM `user` WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function findByEmail($email) {
-        $sql = "SELECT * FROM `User` WHERE email = :email";
+        $sql = "SELECT * FROM `user` WHERE email = :email";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':email' => $email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function findByName($name) {
-        $sql = "SELECT * FROM `User` WHERE name = :name";
+        $sql = "SELECT * FROM `user` WHERE name = :name";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':name' => $name]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -68,19 +68,19 @@ class UserRepository {
             return false;
         }
 
-        $sql = "UPDATE `User` SET " . implode(', ', $fields) . " WHERE id = :id";
+        $sql = "UPDATE `user` SET " . implode(', ', $fields) . " WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute($params);
     }
 
     public function delete($id) {
-        $sql = "DELETE FROM `User` WHERE id = :id";
+        $sql = "DELETE FROM `user` WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':id' => $id]);
     }
 
     public function getAll() {
-        $sql = "SELECT * FROM `User` ORDER BY id DESC";
+        $sql = "SELECT * FROM `user` ORDER BY id DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -88,21 +88,21 @@ class UserRepository {
 
     public function search($term) {
         $term = "%$term%";
-        $sql = "SELECT * FROM `User` WHERE name LIKE :term OR email LIKE :term ORDER BY id DESC";
+        $sql = "SELECT * FROM `user` WHERE name LIKE :term OR email LIKE :term ORDER BY id DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':term' => $term]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getPendingRequests() {
-        $sql = "SELECT * FROM `User` WHERE request_post_permission = 1 AND (can_post = 0 OR can_post IS NULL) ORDER BY created_at DESC";
+        $sql = "SELECT * FROM `user` WHERE request_post_permission = 1 AND (can_post = 0 OR can_post IS NULL) ORDER BY created_at DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getAllWithFilters($filter = null, $search = null, $orderBy = null) {
-        $sql = "SELECT * FROM `User`";
+        $sql = "SELECT * FROM `user`";
         $params = [];
         $conditions = [];
 

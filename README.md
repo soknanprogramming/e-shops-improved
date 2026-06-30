@@ -65,8 +65,8 @@ docker-compose logs -f
 
 | Parameter    | Value        |
 |--------------|--------------|
-| Host         | `mysql_db`   |
-| Database     | `app_db`     |
+| Host         | `mysql`      |
+| Database     | `khmer245_db` |
 | User         | `app_user`   |
 | Password     | `secret`     |
 | Port (host)  | `3307`       |

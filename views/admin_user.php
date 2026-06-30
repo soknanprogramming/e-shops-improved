@@ -19,7 +19,7 @@ $userRepo = new UserRepository($conn);
 $users    = $userRepo->getAllWithFilters($filter, $search, $orderBy);
 
 // Pending count for sidebar badge
-$stmtPending = $conn->prepare("SELECT COUNT(*) as total FROM User WHERE request_post_permission = 1 AND (can_post = 0 OR can_post IS NULL)");
+$stmtPending = $conn->prepare("SELECT COUNT(*) as total FROM user WHERE request_post_permission = 1 AND (can_post = 0 OR can_post IS NULL)");
 $stmtPending->execute();
 $pendingCount = $stmtPending->fetch()['total'];
 

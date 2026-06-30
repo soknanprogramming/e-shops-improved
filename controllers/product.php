@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
     }
 
     // ── Validate can_post permission fresh from DB (don't trust session alone)
-    $stmtPerm = $conn->prepare("SELECT can_post FROM User WHERE id = ?");
+    $stmtPerm = $conn->prepare("SELECT can_post FROM user WHERE id = ?");
     $stmtPerm->execute([$_SESSION['user_id']]);
     $perm = $stmtPerm->fetch();
     if (!$perm || $perm['can_post'] != 1) {

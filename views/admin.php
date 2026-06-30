@@ -25,11 +25,11 @@ $pendingCount = count($pendingRequests);
 $productRepo = new ProductRepository($conn);
 $catRepo = new CategoryRepository($conn);
 
-$stmtTotalUsers = $conn->prepare("SELECT COUNT(*) as total FROM User");
+$stmtTotalUsers = $conn->prepare("SELECT COUNT(*) as total FROM user");
 $stmtTotalUsers->execute();
 $totalUsers = $stmtTotalUsers->fetch()['total'];
 
-$stmtTotalProducts = $conn->prepare("SELECT COUNT(*) as total FROM Product");
+$stmtTotalProducts = $conn->prepare("SELECT COUNT(*) as total FROM product");
 $stmtTotalProducts->execute();
 $totalProducts = $stmtTotalProducts->fetch()['total'];
 
@@ -37,20 +37,20 @@ $stmtTotalCategories = $conn->prepare("SELECT COUNT(*) as total FROM category");
 $stmtTotalCategories->execute();
 $totalCategories = $stmtTotalCategories->fetch()['total'];
 
-$stmtActiveProducts = $conn->prepare("SELECT COUNT(*) as total FROM Product WHERE showed = 1");
+$stmtActiveProducts = $conn->prepare("SELECT COUNT(*) as total FROM product WHERE showed = 1");
 $stmtActiveProducts->execute();
 $activeProducts = $stmtActiveProducts->fetch()['total'];
 
 // Fetch recent data
-$stmtRecentProducts = $conn->prepare("SELECT p.*, u.name as owner_name, pi.main_image FROM Product p LEFT JOIN User u ON p.owner_id = u.id LEFT JOIN product_image pi ON p.product_image_id = pi.id ORDER BY p.created_at DESC LIMIT 5");
+$stmtRecentProducts = $conn->prepare("SELECT p.*, u.name as owner_name, pi.main_image FROM product p LEFT JOIN user u ON p.owner_id = u.id LEFT JOIN product_image pi ON p.product_image_id = pi.id ORDER BY p.created_at DESC LIMIT 5");
 $stmtRecentProducts->execute();
 $recentProducts = $stmtRecentProducts->fetchAll();
 
-$stmtRecentUsers = $conn->prepare("SELECT name, email, created_at FROM User ORDER BY created_at DESC LIMIT 5");
+$stmtRecentUsers = $conn->prepare("SELECT name, email, created_at FROM user ORDER BY created_at DESC LIMIT 5");
 $stmtRecentUsers->execute();
 $recentUsers = $stmtRecentUsers->fetchAll();
 
-$stmtHiddenProducts = $conn->prepare("SELECT COUNT(*) as total FROM Product WHERE showed = 0");
+$stmtHiddenProducts = $conn->prepare("SELECT COUNT(*) as total FROM product WHERE showed = 0");
 $stmtHiddenProducts->execute();
 $hiddenProducts = $stmtHiddenProducts->fetch()['total'];
 ?>

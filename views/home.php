@@ -64,10 +64,10 @@ if (!empty($_GET['seller'])) {
         $sellerInfo['user_image']       = $sellerProfile['user_image']       ?? '';
         $sellerInfo['background_image'] = $sellerProfile['background_image'] ?? '';
         $sellerId = $sellerInfo['id'];
-        $stmtT = $conn->prepare("SELECT COUNT(*) as total FROM Product WHERE owner_id=:id");
+        $stmtT = $conn->prepare("SELECT COUNT(*) as total FROM product WHERE owner_id=:id");
         $stmtT->execute([':id'=>$sellerId]);
         $sellerInfo['total_listings']  = $stmtT->fetch(PDO::FETCH_ASSOC)['total'];
-        $stmtA = $conn->prepare("SELECT COUNT(*) as active FROM Product WHERE owner_id=:id AND showed=1");
+        $stmtA = $conn->prepare("SELECT COUNT(*) as active FROM product WHERE owner_id=:id AND showed=1");
         $stmtA->execute([':id'=>$sellerId]);
         $sellerInfo['active_listings'] = $stmtA->fetch(PDO::FETCH_ASSOC)['active'];
         $sellerInfo['member_since']    = isset($sellerInfo['created_at']) ? date('M Y', strtotime($sellerInfo['created_at'])) : null;

@@ -21,7 +21,7 @@ class CommentRepository {
     public function getAllByProductId($productId) {
         $sql = "SELECT c.*, u.name as user_name
                 FROM product_comments c
-                JOIN User u ON c.user_id = u.id
+                JOIN user u ON c.user_id = u.id
                 WHERE c.product_id = :pid
                 ORDER BY c.created_at ASC";
 
