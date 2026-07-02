@@ -301,7 +301,7 @@ class ProductRepository {
                 WHERE id = :id AND owner_id = :owner_id";
         
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([
+        $success = $stmt->execute([
             ':name'        => $data['name'],
             ':prices'      => $data['prices'],
             ':discounts'   => $data['discounts'],
@@ -311,6 +311,19 @@ class ProductRepository {
             ':id'          => $id,
             ':owner_id'    => $data['owner_id']
         ]);
+
+        if (!$success) {
+            return false;
+        }
+
+        if ($stmt->rowCount() === 0) {
+            $check = $this->conn->prepare("SELECT id FROM product WHERE id = :id AND owner_id = :owner_id");
+            $check->execute([':id' => $id, ':owner_id' => $data['owner_id']]);
+            $exists = $check->fetchColumn();
+            if ($exists === false) {
+                return false;
+            }
+        }
 
         $stmtGetImg = $this->conn->prepare("SELECT product_image_id FROM product WHERE id = :id");
         $stmtGetImg->execute([':id' => $id]);
@@ -337,6 +350,8 @@ class ProductRepository {
                 $stmtImg->execute($imageParams);
             }
         }
+
+        return true;
     }
 
     public function delete($id, $ownerId = null) {
