@@ -1,7 +1,7 @@
 <?php
 /**
  * controllers/profile.php
- * Handles POST from views/profile.php
+ * Handles POST from views/user_profile.php
  * Place at: controllers/profile.php
  */
 session_start();
@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // ── 2. Only accept POST ────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: ../views/profile.php");
+    header("Location: ../views/user_profile.php");
     exit();
 }
 
@@ -24,7 +24,7 @@ if (
     empty($_SESSION['csrf_token']) ||
     !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
-    header("Location: ../views/profile.php?error=" . urlencode('Invalid request. Please try again.'));
+    header("Location: ../views/user_profile.php?error=" . urlencode('Invalid request. Please try again.'));
     exit();
 }
 // Rotate token after use
@@ -47,30 +47,30 @@ $phone1    = trim($_POST['phone1']     ?? '');
 $phone2    = trim($_POST['phone2']     ?? '');
 
 if ($firstName === '' || $lastName === '') {
-    header("Location: ../views/profile.php?error=" . urlencode('First and last name are required.'));
+    header("Location: ../views/user_profile.php?error=" . urlencode('First and last name are required.'));
     exit();
 }
 if (strlen($firstName) > 50 || strlen($lastName) > 50) {
-    header("Location: ../views/profile.php?error=" . urlencode('Name must not exceed 50 characters.'));
+    header("Location: ../views/user_profile.php?error=" . urlencode('Name must not exceed 50 characters.'));
     exit();
 }
 if (strlen($bio) > 200) {
-    header("Location: ../views/profile.php?error=" . urlencode('Bio must not exceed 200 characters.'));
+    header("Location: ../views/user_profile.php?error=" . urlencode('Bio must not exceed 200 characters.'));
     exit();
 }
 if ($phone1 === '') {
-    header("Location: ../views/profile.php?error=" . urlencode('Phone number 1 is required.'));
+    header("Location: ../views/user_profile.php?error=" . urlencode('Phone number 1 is required.'));
     exit();
 }
 
 // Phone: digits, spaces, +, -, () only — 7 to 20 chars
 $phonePattern = '/^[0-9\s\+\-\(\)]{7,20}$/';
 if (!preg_match($phonePattern, $phone1)) {
-    header("Location: ../views/profile.php?error=" . urlencode('Phone 1 is not a valid phone number.'));
+    header("Location: ../views/user_profile.php?error=" . urlencode('Phone 1 is not a valid phone number.'));
     exit();
 }
 if ($phone2 !== '' && !preg_match($phonePattern, $phone2)) {
-    header("Location: ../views/profile.php?error=" . urlencode('Phone 2 is not a valid phone number.'));
+    header("Location: ../views/user_profile.php?error=" . urlencode('Phone 2 is not a valid phone number.'));
     exit();
 }
 
@@ -129,7 +129,7 @@ try {
     $newUserImage = handleUpload('user_image',       $uploadDir, $allowedMime, $maxBytes);
     $newBgImage   = handleUpload('background_image', $uploadDir, $allowedMime, $maxBytes);
 } catch (RuntimeException $e) {
-    header("Location: ../views/profile.php?error=" . urlencode($e->getMessage()));
+    header("Location: ../views/user_profile.php?error=" . urlencode($e->getMessage()));
     exit();
 }
 
@@ -167,5 +167,5 @@ $stmtName->execute([
 ]);
 
 // ── 10. Redirect with success ──────────────────────────────────────────────────
-header("Location: ../views/profile.php?success=" . urlencode('Profile updated successfully.'));
+header("Location: ../views/user_profile.php?success=" . urlencode('Profile updated successfully.'));
 exit();
