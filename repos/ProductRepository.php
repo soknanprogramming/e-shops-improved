@@ -49,8 +49,13 @@ class ProductRepository {
         }
 
         if (!empty($params['name'])) {
-            $sql .= " AND (p.name LIKE :name OR p.description LIKE :name OR p.location LIKE :name OR c.name LIKE :name OR u.name LIKE :name)";
-            $args[':name'] = '%' . $params['name'] . '%';
+            $searchTerm = '%' . $params['name'] . '%';
+            $sql .= " AND (p.name LIKE :name OR p.description LIKE :name_desc OR p.location LIKE :name_location OR c.name LIKE :name_category OR u.name LIKE :name_owner)";
+            $args[':name'] = $searchTerm;
+            $args[':name_desc'] = $searchTerm;
+            $args[':name_location'] = $searchTerm;
+            $args[':name_category'] = $searchTerm;
+            $args[':name_owner'] = $searchTerm;
         }
 
         if (!empty($params['location'])) {
@@ -130,8 +135,13 @@ class ProductRepository {
             $sql .= " AND p.discounts > 0";
         }
         if (!empty($params['name'])) {
-            $sql .= " AND (p.name LIKE :name OR p.description LIKE :name OR p.location LIKE :name OR c.name LIKE :name OR u.name LIKE :name)";
-            $args[':name'] = '%' . $params['name'] . '%';
+            $searchTerm = '%' . $params['name'] . '%';
+            $sql .= " AND (p.name LIKE :name OR p.description LIKE :name_desc OR p.location LIKE :name_location OR c.name LIKE :name_category OR u.name LIKE :name_owner)";
+            $args[':name'] = $searchTerm;
+            $args[':name_desc'] = $searchTerm;
+            $args[':name_location'] = $searchTerm;
+            $args[':name_category'] = $searchTerm;
+            $args[':name_owner'] = $searchTerm;
         }
         if (!empty($params['location'])) {
             $sql .= " AND p.location LIKE :location";
@@ -150,7 +160,12 @@ class ProductRepository {
         }
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute($args);
+
+        foreach ($args as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+
+        $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'];
     }
