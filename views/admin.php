@@ -666,7 +666,7 @@ $hiddenProducts = $stmtHiddenProducts->fetch()['total'];
                 <a href="admin_user.php" class="view-all-link">View All Users →</a>
             </div>
         </div>
-         <?php include './assets/footer.php'; ?>
+         <?php # include './assets/footer.php'; ?>
     </div>
    
 </body>
