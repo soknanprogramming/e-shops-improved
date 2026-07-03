@@ -445,6 +445,10 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; color: var(--forest);
             font-family: var(--font-display); font-size: .95rem; font-weight: 800;
+            overflow: hidden;
+        }
+        .comment-avatar img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
         }
         .comment-body { flex: 1; }
         .comment-meta { display: flex; align-items: center; gap: .75rem; margin-bottom: .35rem; flex-wrap: wrap; }
@@ -600,7 +604,13 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                         <?php else: ?>
                             <?php foreach ($comments as $cmt): ?>
                                 <div class="comment-item" id="comment-<?php echo $cmt['id']; ?>">
-                                    <div class="comment-avatar"><?php echo strtoupper(mb_substr($cmt['user_name'], 0, 1)); ?></div>
+                                    <div class="comment-avatar">
+                                        <?php if (!empty($cmt['user_image'])): ?>
+                                            <img src="../uploads/profiles/<?php echo htmlspecialchars($cmt['user_image']); ?>" alt="<?php echo htmlspecialchars($cmt['user_name']); ?>">
+                                        <?php else: ?>
+                                            <?php echo strtoupper(mb_substr($cmt['user_name'], 0, 1)); ?>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="comment-body">
                                         <div class="comment-meta">
                                             <span class="comment-author"><?php echo htmlspecialchars($cmt['user_name']); ?></span>
@@ -634,6 +644,7 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <div class="comment-form-wrap">
                             <form class="comment-form" id="commentForm" onsubmit="postComment(event)">
+                                <input type="hidden" name="add_comment" value="1">
                                 <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                 <textarea name="comment" id="commentText" rows="2"
@@ -1000,8 +1011,11 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
         const list = document.getElementById('commentList');
         const div  = document.createElement('div');
         div.className = 'comment-item'; div.id = 'comment-' + (data.id || Date.now());
+        const avatarHtml = data.user_image
+            ? `<div class="comment-avatar"><img src="../uploads/profiles/${escHtml(data.user_image)}" alt="${escHtml(data.user_name || 'User')}"></div>`
+            : `<div class="comment-avatar">${data.user_name ? data.user_name[0].toUpperCase() : '?'}</div>`;
         div.innerHTML = `
-            <div class="comment-avatar">${data.user_name ? data.user_name[0].toUpperCase() : '?'}</div>
+            ${avatarHtml}
             <div class="comment-body">
                 <div class="comment-meta">
                     <span class="comment-author">${escHtml(data.user_name||'')}</span>
