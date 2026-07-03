@@ -366,6 +366,10 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; color: var(--forest);
             border: 2px solid rgba(26,51,37,.1);
+            overflow: hidden;
+        }
+        .seller-avatar img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
         }
         .seller-avatar svg { width: 24px; height: 24px; }
         .seller-name-link {
@@ -794,7 +798,11 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                 <div class="seller-card">
                     <div class="seller-header">
                         <div class="seller-avatar">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            <?php if (!empty($product['owner_image'])): ?>
+                                <img src="../uploads/profiles/<?php echo htmlspecialchars($product['owner_image']); ?>" alt="<?php echo htmlspecialchars($product['owner_name']); ?>">
+                            <?php else: ?>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            <?php endif; ?>
                         </div>
                         <div>
                             <a href="home.php?seller=<?php echo urlencode($product['owner_name']); ?>" class="seller-name-link">

@@ -206,7 +206,7 @@ class ProductRepository {
                        pi.main_image, pi.image1, pi.image2, pi.image3, pi.image4, pi.image5,
                        c.name as category_name, 
                        u.name as owner_name,
-                       up.phone1, up.phone2
+                       up.phone1, up.phone2, up.user_image as owner_image
                 FROM product p 
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id 
                 LEFT JOIN category c ON p.category_id = c.id
