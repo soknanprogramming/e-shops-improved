@@ -35,7 +35,7 @@ for ($i = 1; $i <= 5; $i++) {
 }
 
 $originalPrice   = $product['prices'] + ($product['discounts'] ?? 0);
-$discountPercent = ($product['discounts'] > 0) ? round(($product['discounts'] / $originalPrice) * 100) : 0;
+$discountPercent = ($product['discounts'] > 0) ? ceil(($product['discounts'] / $originalPrice) * 100) : 0;
 $isOwner         = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $product['owner_id'];
 $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
 ?>
@@ -551,7 +551,7 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                     <div class="main-photo" id="mainPhoto" onclick="openZoom(this.querySelector('img').src)">
                         <img id="mainImage" src="../uploads/products/<?php echo htmlspecialchars(reset($images)); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
                         <?php if ($discountPercent > 0): ?>
-                            <div class="ribbon">−<?php echo $discountPercent; ?>% OFF</div>
+                            <div class="ribbon"><?php echo $discountPercent; ?>% OFF</div>
                         <?php endif; ?>
                         <?php if (count($images) > 1): ?>
                             <div class="img-count" id="imgCount">1 / <?php echo count($images); ?></div>

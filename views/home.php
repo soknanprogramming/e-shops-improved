@@ -293,6 +293,12 @@ if (!empty($_GET['seller'])) {
             color: var(--ink); outline: none; transition: border-color .2s, box-shadow .2s;
         }
         .filter-field input:focus { border-color: var(--forest); background: var(--white); box-shadow: 0 0 0 3px rgba(26,51,37,.07); }
+        
+        .filter-checkbox label { display: flex; align-items: center; gap: .6rem; font-size: .75rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink); cursor: pointer; padding: .4rem 0; margin-bottom: 0; }
+        .filter-checkbox input[type="checkbox"] { width: auto; padding: 0; appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 2px solid var(--border-md); border-radius: 4px; cursor: pointer; transition: all .2s; background: var(--white); flex-shrink: 0; }
+        .filter-checkbox input[type="checkbox"]:hover { border-color: var(--forest); background: rgba(26,51,37,.02); }
+        .filter-checkbox input[type="checkbox"]:checked { background: var(--forest); border-color: var(--forest); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 11.94l6.72-6.72a.75.75 0 011.06 0z'/%3E%3C/svg%3E"); background-size: 100% 100%; background-repeat: no-repeat; }
+        
         .filter-actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
         .btn-apply { padding: 10px 24px; background: var(--forest); color: var(--white); border: none; border-radius: var(--r-xs); font-family: var(--font-body); font-weight: 800; font-size: .82rem; cursor: pointer; transition: background .2s, transform .15s; }
         .btn-apply:hover { background: var(--forest-mid); transform: translateY(-1px); }
@@ -428,10 +434,10 @@ if (!empty($_GET['seller'])) {
             position: absolute; top: 12px; left: 12px; z-index: 3;
             background: linear-gradient(135deg, var(--red) 0%, var(--red-soft) 100%);
             color: var(--white);
-            padding: 5px 11px;
+            padding: 6px 11px;
             border-radius: 9999px;
-            font-size: .68rem; font-weight: 800;
-            letter-spacing: .03em;
+            font-size: .75rem; font-weight: 900;
+            letter-spacing: .02em;
             box-shadow: 0 3px 10px rgba(192,57,43,.35);
         }
 
@@ -543,18 +549,25 @@ if (!empty($_GET['seller'])) {
             justify-content: space-between; gap: 8px;
         }
         .price-block {}
+        .price-container {
+            display: flex; flex-direction: column; gap: 4px;
+        }
         .price-now {
             font-family: var(--font-display);
             font-size: 1.3rem; font-weight: 800;
             color: var(--forest); line-height: 1;
         }
         @media (max-width:640px) { .price-now { font-size: 1.08rem; } }
-        .price-was { font-size: .72rem; color: var(--ink-ghost); text-decoration: line-through; opacity: .65; margin-top: 2px; }
+        
+        .discount-info {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+        }
+        .price-was { font-size: .72rem; color: var(--ink-ghost); text-decoration: line-through; opacity: .65; }
         .save-pill {
             font-size: .6rem; font-weight: 800;
-            color: var(--red); background: var(--red-light);
-            padding: 2px 7px; border-radius: 9999px;
-            display: inline-block; margin-top: 3px;
+            color: var(--white); background: var(--red);
+            padding: 3px 8px; border-radius: 9999px;
+            display: inline-block;
         }
 
         .card-action-btn {
@@ -904,6 +917,12 @@ if (!empty($_GET['seller'])) {
                         <label>Max Price ($)</label>
                         <input type="number" name="max_price" placeholder="No limit" step="0.01" value="<?php echo htmlspecialchars($_GET['max_price'] ?? ''); ?>">
                     </div>
+                    <div class="filter-field filter-checkbox">
+                        <label>
+                            <input type="checkbox" name="has_discount" value="1" <?php echo isset($_GET['has_discount']) ? 'checked' : ''; ?>>
+                            <span>On Sale</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="filter-actions">
                     <button type="submit" class="btn-apply">Apply Filters</button>
@@ -929,8 +948,9 @@ if (!empty($_GET['seller'])) {
                     $discountPct = 0;
                     $origPrice = $product['prices'] + ($product['discounts'] ?? 0);
                     if (!empty($product['discounts']) && $product['discounts'] > 0 && $origPrice > 0) {
-                        $discountPct = round(($product['discounts'] / $origPrice) * 100);
+                        $discountPct = ceil(($product['discounts'] / $origPrice) * 100);
                     }
+                    $hasDiscount = $discountPct > 0;
                     $isNew = isset($product['created_at']) && (time() - strtotime($product['created_at'])) < 86400 * 3;
                 ?>
                     <div class="product-card"
@@ -961,9 +981,9 @@ if (!empty($_GET['seller'])) {
                                      alt="<?php echo htmlspecialchars($product['name']); ?>"
                                      loading="lazy">
 
-                                <!-- FIXED: only show discount badge when discount > 0 -->
-                                <?php if ($discountPct > 0): ?>
-                                    <span class="discount-badge">−<?php echo $discountPct; ?>%</span>
+                                <!-- DISCOUNT OR NEW BADGE -->
+                                <?php if ($hasDiscount): ?>
+                                    <span class="discount-badge"><?php echo $discountPct; ?>% OFF</span>
                                 <?php elseif ($isNew): ?>
                                     <span class="new-badge">New</span>
                                 <?php endif; ?>
@@ -1017,11 +1037,15 @@ if (!empty($_GET['seller'])) {
 
                                 <div class="card-price-row">
                                     <div class="price-block">
-                                        <div class="price-now">$<?php echo number_format($product['prices'], 2); ?></div>
-                                        <?php if ($discountPct > 0): ?>
-                                            <div class="price-was">$<?php echo number_format($origPrice, 2); ?></div>
-                                            <span class="save-pill">Save $<?php echo number_format($product['discounts'], 2); ?></span>
-                                        <?php endif; ?>
+                                        <div class="price-container">
+                                            <div class="price-now">$<?php echo number_format($product['prices'], 2); ?></div>
+                                            <?php if ($hasDiscount): ?>
+                                                <div class="discount-info">
+                                                    <div class="price-was">$<?php echo number_format($origPrice, 2); ?></div>
+                                                    <span class="save-pill">Save $<?php echo number_format($product['discounts'], 2); ?></span>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                     <button class="card-action-btn" aria-label="View product">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
