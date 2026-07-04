@@ -89,11 +89,8 @@ khmer24-php/
 │   ├── categories/           # Category images
 │   └── profiles/             # Profile pictures
 │
-├── backups/                  # SQL schemas & migrations
-│   ├── table/                # Base schema files
-│   └── sql_update.sql        # Schema migrations
-│
-├── prompts/                       # Design system documentation
+├── sql/                      # SQL schemas & migrations
+├── prompts/                  # Design system documentation
 └── markdown/                 # Documentation assets
 ```
 
