@@ -23,6 +23,16 @@ $stmtPending = $conn->prepare("SELECT COUNT(*) as total FROM user WHERE request_
 $stmtPending->execute();
 $pendingCount = $stmtPending->fetch()['total'];
 
+// Load profile images for users so the avatar cell can show photos when available
+$stmtProfiles = $conn->prepare("SELECT user_id, user_image FROM user_profile");
+$stmtProfiles->execute();
+$profileImagesByUserId = [];
+while ($profileRow = $stmtProfiles->fetch(PDO::FETCH_ASSOC)) {
+    if (!empty($profileRow['user_image'])) {
+        $profileImagesByUserId[(int)$profileRow['user_id']] = $profileRow['user_image'];
+    }
+}
+
 // Avatar colour palette
 $avColors = [
     ['bg'=>'#d4f1e4','color'=>'#0f6e56'],
@@ -247,6 +257,12 @@ function getInitials(string $name): string {
             font-size: 11px; font-weight: 700;
             flex-shrink: 0;
             user-select: none;
+            overflow: hidden;
+        }
+        .avatar-image {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
         }
         .user-info-wrap { display: flex; align-items: center; gap: 10px; }
         .user-name  { font-weight: 600; color: var(--on-surface); }
@@ -415,16 +431,25 @@ function getInitials(string $name): string {
                                     $joined   = $user['created_at']
                                                 ? date('M j, Y', strtotime($user['created_at']))
                                                 : '—';
+                                    $profileImage = $profileImagesByUserId[(int)$user['id']] ?? null;
                                 ?>
                                 <tr class="user-table-row"
                                     data-uid="<?php echo $user['id']; ?>"
                                     onclick="openDetail(<?php echo (int)$user['id']; ?>)"
                                     title="Click to view full profile">
                                     <td>
-                                        <div class="avatar-cell"
-                                             style="background:<?php echo $col['bg']; ?>;color:<?php echo $col['color']; ?>">
-                                            <?php echo $initials; ?>
-                                        </div>
+                                        <?php if (!empty($profileImage)): ?>
+                                            <div class="avatar-cell">
+                                                <img src="../uploads/profiles/<?php echo htmlspecialchars($profileImage); ?>"
+                                                     alt="<?php echo htmlspecialchars($user['name']); ?>"
+                                                     class="avatar-image">
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="avatar-cell"
+                                                 style="background:<?php echo $col['bg']; ?>;color:<?php echo $col['color']; ?>">
+                                                <?php echo $initials; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <div class="user-info-wrap">
