@@ -1,9 +1,12 @@
 <?php
 session_start();
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+// Always regenerate CSRF token for this page to prevent stale tokens
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+// Also set as cookie as backup in case session has issues
+setcookie('csrf_token', $_SESSION['csrf_token'], 0, '/', '', false, true);
 require_once '../configs/connect.php';
+require_once '../configs/middleware.php';
+checkRememberCookie($conn);
 require_once '../repos/ProductRepository.php';
 require_once '../repos/LikeRepository.php';
 require_once '../repos/CommentRepository.php';
@@ -628,10 +631,11 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                                     <?php if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $cmt['user_id'] || $isAdmin)): ?>
                                         <form action="../controllers/comment.php" method="POST"
                                               onsubmit="return deleteComment(event, <?php echo $cmt['id']; ?>, <?php echo $product['id']; ?>)">
+                                            <input type="hidden" name="delete_comment" value="1">
                                             <input type="hidden" name="comment_id" value="<?php echo $cmt['id']; ?>">
                                             <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                            <button type="submit" name="delete_comment" class="btn-delete-comment">
+                                            <button type="submit" class="btn-delete-comment">
                                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>

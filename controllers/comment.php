@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once '../configs/connect.php';
+require_once '../configs/middleware.php';
+checkRememberCookie($conn);
 require_once '../repos/CommentRepository.php';
 
 function is_ajax_request() {
@@ -23,10 +25,24 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 function csrf_verify() {
-    $token = $_POST['csrf_token'] ?? '';
-    if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+    $postToken = $_POST['csrf_token'] ?? '';
+    $sessionToken = $_SESSION['csrf_token'] ?? '';
+    
+    // Log for debugging
+    if (empty($sessionToken)) {
+        error_log("CSRF Verify: Session token is empty!");
         return false;
     }
+    if (empty($postToken)) {
+        error_log("CSRF Verify: POST token is empty!");
+        return false;
+    }
+    
+    if (!hash_equals($sessionToken, $postToken)) {
+        error_log("CSRF Verify: Tokens don't match. Session: " . substr($sessionToken, 0, 10) . "... POST: " . substr($postToken, 0, 10) . "...");
+        return false;
+    }
+    
     return true;
 }
 
