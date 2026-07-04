@@ -112,7 +112,7 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
         @media (max-width:820px)  { .product-grid { grid-template-columns: 1fr; gap: 2rem; } }
 
         /* ── Gallery ── */
-        .gallery {}
+        /* .gallery {} */
 
         .main-photo {
             position: relative;
@@ -261,7 +261,7 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
             font-size: 2.5rem; font-weight: 800;
             color: var(--ink); line-height: 1;
         }
-        .rating-stars-col {}
+        /* .rating-stars-col {} */
         .stars-row { display: flex; gap: 3px; margin-bottom: 3px; }
         .star { width: 16px; height: 16px; }
         .star-full { color: #e0c55a; }
