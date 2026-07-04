@@ -4,8 +4,6 @@
 
 **Live Demo:** [https://soknan-shop.free.nf/](https://soknan-shop.free.nf/)
 
-![Platform Preview](markdown/image1.png)
-
 ## 🌟 Features
 
 ### For Users
