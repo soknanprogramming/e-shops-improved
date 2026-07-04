@@ -1,3 +1,8 @@
+# phpMyAdmin credentials:
+# - Server: `mysql`
+# - Username: `root`
+# - Password: `root`
+
 services:
 
   php:
