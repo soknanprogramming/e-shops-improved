@@ -46,7 +46,7 @@ $stmtRecentProducts = $conn->prepare("SELECT p.*, u.name as owner_name, pi.main_
 $stmtRecentProducts->execute();
 $recentProducts = $stmtRecentProducts->fetchAll();
 
-$stmtRecentUsers = $conn->prepare("SELECT name, email, created_at FROM user ORDER BY created_at DESC LIMIT 5");
+$stmtRecentUsers = $conn->prepare("SELECT u.id, u.name, u.email, u.created_at, up.user_image FROM user u LEFT JOIN user_profile up ON up.user_id = u.id ORDER BY u.created_at DESC LIMIT 5");
 $stmtRecentUsers->execute();
 $recentUsers = $stmtRecentUsers->fetchAll();
 
@@ -456,6 +456,28 @@ $hiddenProducts = $stmtHiddenProducts->fetch()['total'];
             flex-shrink: 0;
         }
 
+        .recent-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .recent-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
         .recent-item-name {
             font-weight: 600;
             font-size: 0.85rem;
@@ -653,9 +675,15 @@ $hiddenProducts = $stmtHiddenProducts->fetch()['total'];
                 <?php foreach ($recentUsers as $ru): ?>
                     <div class="recent-item">
                         <div class="recent-item-info">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--primary);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            </div>
+                            <?php if (!empty($ru['user_image'])): ?>
+                                <div class="recent-user-avatar">
+                                    <img src="../uploads/profiles/<?php echo htmlspecialchars($ru['user_image']); ?>" alt="<?php echo htmlspecialchars($ru['name']); ?>">
+                                </div>
+                            <?php else: ?>
+                                <div class="recent-user-avatar" aria-label="No profile image">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
+                            <?php endif; ?>
                             <div>
                                 <p class="recent-item-name"><?php echo htmlspecialchars($ru['name']); ?></p>
                                 <p class="recent-item-meta"><?php echo htmlspecialchars($ru['email']); ?></p>
