@@ -202,6 +202,37 @@ function getInitials(string $name): string {
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all .2s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(26, 51, 37, 0.16);
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(26, 51, 37, 0.24);
+            filter: brightness(1.05);
+        }
+        .action-btn:nth-child(2n) {
+            background: linear-gradient(135deg, var(--secondary) 0%, #b78b3d 100%);
+        }
+
         /* ─── TABLE CARD ──────────────────────────────────────────────────── */
         .table-card {
             background: var(--surface);
@@ -435,7 +466,7 @@ function getInitials(string $name): string {
                                 ?>
                                 <tr class="user-table-row"
                                     data-uid="<?php echo $user['id']; ?>"
-                                    onclick="openDetail(<?php echo (int)$user['id']; ?>)"
+                                    onclick="if (event && event.target && event.target.closest('.action-btn')) { event.stopPropagation(); } else { openDetail(<?php echo (int)$user['id']; ?>); }"
                                     title="Click to view full profile">
                                     <td>
                                         <?php if (!empty($profileImage)): ?>
@@ -480,7 +511,18 @@ function getInitials(string $name): string {
                                         <?php echo $joined; ?>
                                     </td>
                                     <td style="text-align:center;">
-                                        <span class="row-hint">View Profile →</span>
+                                        <div class="action-group">
+                                            <a href="../controllers/user.php?action=toggle_role&id=<?php echo (int)$user['id']; ?><?php echo !empty($search)?'&search='.urlencode($search):''; ?><?php echo isset($filter) && $filter !== null ? '&filter=' . urlencode($filter) : ''; ?>&order=<?php echo urlencode($orderBy); ?>"
+                                               class="action-btn"
+                                               onclick="event.stopPropagation(); return confirm(<?php echo json_encode($user['is_admin'] ? 'Remove admin privileges for this user?' : 'Grant admin privileges to this user?'); ?>);">
+                                                <?php echo $user['is_admin'] ? 'Demote' : 'Make Admin'; ?>
+                                            </a>
+                                            <a href="../controllers/user.php?action=toggle_permission&id=<?php echo (int)$user['id']; ?><?php echo !empty($search)?'&search='.urlencode($search):''; ?><?php echo isset($filter) && $filter !== null ? '&filter=' . urlencode($filter) : ''; ?>&order=<?php echo urlencode($orderBy); ?>"
+                                               class="action-btn"
+                                               onclick="event.stopPropagation(); return confirm(<?php echo json_encode($user['can_post'] ? 'Revoke posting permission for this user?' : 'Allow this user to post products?'); ?>);">
+                                                <?php echo !empty($user['can_post']) ? 'Revoke Post' : 'Allow Post'; ?>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

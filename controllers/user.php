@@ -24,7 +24,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'toggle_role' && isset($_GET['
         $new_role = $user['is_admin'] == 1 ? 0 : 1;
         $userRepo->update($id, ['is_admin' => $new_role]);
         $msg = $new_role ? 'User promoted to Admin' : 'User demoted to User';
-        header("Location: ../views/admin_user.php?success=" . urlencode($msg));
+        $redirectParams = [];
+        foreach (['search', 'filter', 'order'] as $key) {
+            if (isset($_GET[$key]) && $_GET[$key] !== '') {
+                $redirectParams[$key] = $_GET[$key];
+            }
+        }
+        $redirectParams['success'] = $msg;
+        header("Location: ../views/admin_user.php?" . http_build_query($redirectParams));
     } else {
         header("Location: ../views/admin_user.php?error=" . urlencode('User not found'));
     }
@@ -44,7 +51,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'toggle_permission' && isset($
         if ($new_status == 1) $updateData['request_post_permission'] = 0;
         $userRepo->update($id, $updateData);
         $msg = $new_status ? 'User allowed to post products' : 'User posting permission revoked';
-        header("Location: ../views/admin_user.php?success=" . urlencode($msg));
+        $redirectParams = [];
+        foreach (['search', 'filter', 'order'] as $key) {
+            if (isset($_GET[$key]) && $_GET[$key] !== '') {
+                $redirectParams[$key] = $_GET[$key];
+            }
+        }
+        $redirectParams['success'] = $msg;
+        header("Location: ../views/admin_user.php?" . http_build_query($redirectParams));
     } else {
         header("Location: ../views/admin_user.php?error=" . urlencode('User not found'));
     }
