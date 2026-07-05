@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
         // Regenerate CSRF token after successful submission
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
-        header("Location: ../views/product_create.php?success=1");
+        header("Location: ../views/user_dashboard.php");
         exit();
 
     } catch (PDOException $e) {
@@ -221,11 +221,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
         $deleted = $productRepo->delete($product_id, (int)$_SESSION['user_id']);
 
         if ($deleted) {
-            header("Location: ../views/user_dashboard.php?success=" . urlencode('Product deleted successfully.'));
+            // if user 
+            if (isset($_SESSION['role']) && $_SESSION['role'] === 'user') {
+                header("Location: ../views/user_dashboard.php?success=" . urlencode('Product deleted successfully.'));
+            } 
+            // if admin
+            else {
+                header("Location: ../views/admin_product.php?success=" . urlencode('Product deleted successfully.'));
+            }
             exit();
         }
 
-        header("Location: ../views/user_dashboard.php?error=" . urlencode('Unable to delete product or you are not authorized.'));
+        if (isset($_SESSION['role']) && $_SESSION['role'] === 'user') {
+            header("Location: ../views/user_dashboard.php?error=" . urlencode('Unable to delete product.'));
+        } else {
+            header("Location: ../views/admin_product.php?error=" . urlencode('Unable to delete product.'));
+        }
         exit();
 
     } catch (PDOException $e) {
