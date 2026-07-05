@@ -508,6 +508,25 @@ function openLightbox(src, label) {
   document.addEventListener('keydown', onKey);
 }
 
+function resetProfileModalUI() {
+  const modal = document.getElementById('userProfileModal');
+  const loading = document.getElementById('upmLoading');
+  const content = document.getElementById('upmContent');
+
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+  document.querySelectorAll('.user-table-row').forEach(r => r.classList.remove('row-active'));
+
+  if (loading) {
+    loading.style.display = 'flex';
+    loading.innerHTML = '<div class="upm-spinner"></div><span>Loading profile…</span>';
+  }
+  if (content) {
+    content.style.display = 'none';
+    content.innerHTML = '';
+  }
+}
+
 // ── Open modal ────────────────────────────────────────────────────────────────
 function openDetail(uid) {
   document.querySelectorAll('.user-table-row').forEach(r => r.classList.remove('row-active'));
@@ -515,13 +534,12 @@ function openDetail(uid) {
   if (row) row.classList.add('row-active');
 
   const modal = document.getElementById('userProfileModal');
-  document.getElementById('upmLoading').style.display = 'flex';
-  document.getElementById('upmContent').style.display = 'none';
-  document.getElementById('upmContent').innerHTML = '';
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  // Reset scroll position
-  modal.querySelector('.upm-sheet').scrollTop = 0;
+  resetProfileModalUI();
+  if (modal) {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    modal.querySelector('.upm-sheet').scrollTop = 0;
+  }
 
   fetch(`ajax/get_user_detail.php?uid=${uid}`)
     .then(r => {
@@ -766,12 +784,16 @@ function closeProfileModal(e) {
   if (e.target === document.getElementById('userProfileModal')) closeProfileModalBtn();
 }
 function closeProfileModalBtn() {
-  document.getElementById('userProfileModal').classList.remove('open');
-  document.body.style.overflow = '';
-  document.querySelectorAll('.user-table-row').forEach(r => r.classList.remove('row-active'));
+  resetProfileModalUI();
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !document.querySelector('.upm-lightbox')) closeProfileModalBtn();
+});
+document.addEventListener('DOMContentLoaded', () => {
+  resetProfileModalUI();
+});
+window.addEventListener('pageshow', () => {
+  resetProfileModalUI();
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -798,13 +820,6 @@ function upmFmtDate(str) {
       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
       </svg>
-    </button>
-    <!-- Back to user profile -->
-    <button class="upm-pd-back" onclick="upmPdGoBack()" title="Back to user profile">
-      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
-      </svg>
-      Back to Profile
     </button>
     <div class="upm-pd-loading" id="upmPdLoading">
       <div class="upm-pd-spinner"></div>
@@ -1054,12 +1069,7 @@ function upmFmtDate(str) {
 const UPM_PD_IMG    = '../uploads/products/';
 const UPM_PD_AVATAR = '../uploads/profiles/';
 
-// remember which user we came from so the back button works
-let _upmPdFromUid = null;
-
-function upmPdOpen(pid, fromUid) {
-  _upmPdFromUid = fromUid || null;
-
+function upmPdOpen(pid) {
   const modal = document.getElementById('upmPdModal');
   document.getElementById('upmPdLoading').style.display = 'flex';
   document.getElementById('upmPdContent').style.display = 'none';
@@ -1204,13 +1214,6 @@ function upmPdViewSeller(uid) {
   setTimeout(() => openDetail(uid), 160);
 }
 
-function upmPdGoBack() {
-  upmPdClose();
-  if (_upmPdFromUid) {
-    setTimeout(() => openDetail(_upmPdFromUid), 160);
-  }
-}
-
 function upmPdClose() {
   document.getElementById('upmPdModal').classList.remove('open');
   document.body.style.overflow = '';
@@ -1223,7 +1226,7 @@ function upmPdOverlayClick(e) {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !document.querySelector('.upm-lightbox')) {
     if (document.getElementById('upmPdModal').classList.contains('open')) {
-      upmPdGoBack();
+      upmPdClose();
     }
   }
 });

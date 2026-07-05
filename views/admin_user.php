@@ -466,7 +466,7 @@ function getInitials(string $name): string {
                                 ?>
                                 <tr class="user-table-row"
                                     data-uid="<?php echo $user['id']; ?>"
-                                    onclick="if (event && event.target && event.target.closest('.action-btn')) { event.stopPropagation(); } else { openDetail(<?php echo (int)$user['id']; ?>); }"
+                                    onclick="if (event && event.target && (event.target.closest('.action-btn') || event.target.closest('.action-group'))) { event.preventDefault(); event.stopPropagation(); return false; } openDetail(<?php echo (int)$user['id']; ?>);"
                                     title="Click to view full profile">
                                     <td>
                                         <?php if (!empty($profileImage)): ?>
@@ -514,12 +514,12 @@ function getInitials(string $name): string {
                                         <div class="action-group">
                                             <a href="../controllers/user.php?action=toggle_role&id=<?php echo (int)$user['id']; ?><?php echo !empty($search)?'&search='.urlencode($search):''; ?><?php echo isset($filter) && $filter !== null ? '&filter=' . urlencode($filter) : ''; ?>&order=<?php echo urlencode($orderBy); ?>"
                                                class="action-btn"
-                                               onclick="event.stopPropagation(); return confirm(<?php echo json_encode($user['is_admin'] ? 'Remove admin privileges for this user?' : 'Grant admin privileges to this user?'); ?>);">
+                                               onclick='event.stopPropagation(); if (!confirm(<?php echo json_encode($user['is_admin'] ? 'Remove admin privileges for this user?' : 'Grant admin privileges to this user?'); ?>)) { event.preventDefault(); }'>
                                                 <?php echo $user['is_admin'] ? 'Demote' : 'Make Admin'; ?>
                                             </a>
                                             <a href="../controllers/user.php?action=toggle_permission&id=<?php echo (int)$user['id']; ?><?php echo !empty($search)?'&search='.urlencode($search):''; ?><?php echo isset($filter) && $filter !== null ? '&filter=' . urlencode($filter) : ''; ?>&order=<?php echo urlencode($orderBy); ?>"
                                                class="action-btn"
-                                               onclick="event.stopPropagation(); return confirm(<?php echo json_encode($user['can_post'] ? 'Revoke posting permission for this user?' : 'Allow this user to post products?'); ?>);">
+                                               onclick='event.stopPropagation(); if (!confirm(<?php echo json_encode($user['can_post'] ? 'Revoke posting permission for this user?' : 'Allow this user to post products?'); ?>)) { event.preventDefault(); }'>
                                                 <?php echo !empty($user['can_post']) ? 'Revoke Post' : 'Allow Post'; ?>
                                             </a>
                                         </div>
