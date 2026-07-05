@@ -430,7 +430,7 @@ function qstr($extra = []) {
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
 
-        fetch(`/e-shops-improved/views/ajax/get_product_detail.php?pid=${pid}`)
+        fetch(`ajax/get_product_detail.php?pid=${pid}`)
             .then(r => { if (!r.ok) throw new Error('Server error ' + r.status); return r.json(); })
             .then(data => { if (data.error) throw new Error(data.error); renderProduct(data); })
             .catch(err => {
