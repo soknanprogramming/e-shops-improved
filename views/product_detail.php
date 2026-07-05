@@ -41,6 +41,39 @@ $originalPrice   = $product['prices'] + ($product['discounts'] ?? 0);
 $discountPercent = ($product['discounts'] > 0) ? ceil(($product['discounts'] / $originalPrice) * 100) : 0;
 $isOwner         = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $product['owner_id'];
 $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
+
+function formatRelativeTime($value): string {
+    if (empty($value)) {
+        return 'Just now';
+    }
+
+    $timestamp = is_numeric($value) ? (int)$value : strtotime((string)$value);
+    if ($timestamp === false) {
+        return 'Just now';
+    }
+
+    $timezone = new DateTimeZone('Asia/Phnom_Penh');
+    $now = new DateTime('now', $timezone);
+    $createdAt = new DateTime('@' . $timestamp, $timezone);
+    $diff = $now->getTimestamp() - $createdAt->getTimestamp();
+    if ($diff < 0) {
+        return 'Just now';
+    }
+    if ($diff < 60) {
+        return 'Just now';
+    }
+    if ($diff < 3600) {
+        return floor($diff / 60) . 'm ago';
+    }
+    if ($diff < 86400) {
+        return floor($diff / 3600) . 'h ago';
+    }
+    if ($diff < 604800) {
+        return floor($diff / 86400) . 'd ago';
+    }
+
+    return date('d M Y', $timestamp);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -617,14 +650,7 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                                     <div class="comment-body">
                                         <div class="comment-meta">
                                             <span class="comment-author"><?php echo htmlspecialchars($cmt['user_name']); ?></span>
-                                            <span class="comment-time"><?php
-                                                $diff = time() - strtotime($cmt['created_at']);
-                                                if ($diff < 60)         echo 'Just now';
-                                                elseif ($diff < 3600)   echo floor($diff/60).'m ago';
-                                                elseif ($diff < 86400)  echo floor($diff/3600).'h ago';
-                                                elseif ($diff < 604800) echo floor($diff/86400).'d ago';
-                                                else                     echo date('d M Y', strtotime($cmt['created_at']));
-                                            ?></span>
+                                            <span class="comment-time"><?php echo formatRelativeTime($cmt['created_at'] ?? null); ?></span>
                                         </div>
                                         <p class="comment-text"><?php echo nl2br(htmlspecialchars($cmt['comment'])); ?></p>
                                     </div>
@@ -713,10 +739,8 @@ $isAdmin         = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                     <span class="chip">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <?php
-                        $diff = time() - strtotime($product['created_at']);
-                        if ($diff < 86400)        echo 'Posted today';
-                        elseif ($diff < 604800)   echo floor($diff/86400).'d ago';
-                        else                       echo date('d M Y', strtotime($product['created_at']));
+                        $productTime = formatRelativeTime($product['created_at'] ?? null);
+                        echo $productTime === 'Just now' || $productTime === '1m ago' || $productTime === '2m ago' || $productTime === '3m ago' || $productTime === '4m ago' || $productTime === '5m ago' || $productTime === '6m ago' || $productTime === '7m ago' || $productTime === '8m ago' || $productTime === '9m ago' || $productTime === '10m ago' || $productTime === '11m ago' || $productTime === '12m ago' || $productTime === '13m ago' || $productTime === '14m ago' || $productTime === '15m ago' || $productTime === '16m ago' || $productTime === '17m ago' || $productTime === '18m ago' || $productTime === '19m ago' || $productTime === '20m ago' || $productTime === '21m ago' || $productTime === '22m ago' || $productTime === '23m ago' || $productTime === '24m ago' || $productTime === '25m ago' || $productTime === '26m ago' || $productTime === '27m ago' || $productTime === '28m ago' || $productTime === '29m ago' || $productTime === '30m ago' || $productTime === '31m ago' || $productTime === '32m ago' || $productTime === '33m ago' || $productTime === '34m ago' || $productTime === '35m ago' || $productTime === '36m ago' || $productTime === '37m ago' || $productTime === '38m ago' || $productTime === '39m ago' || $productTime === '40m ago' || $productTime === '41m ago' || $productTime === '42m ago' || $productTime === '43m ago' || $productTime === '44m ago' || $productTime === '45m ago' || $productTime === '46m ago' || $productTime === '47m ago' || $productTime === '48m ago' || $productTime === '49m ago' || $productTime === '50m ago' || $productTime === '51m ago' || $productTime === '52m ago' || $productTime === '53m ago' || $productTime === '54m ago' || $productTime === '55m ago' || $productTime === '56m ago' || $productTime === '57m ago' || $productTime === '58m ago' || $productTime === '59m ago' || $productTime === '60m ago' ? 'Posted today' : $productTime;
                         ?>
                     </span>
                 </div>
