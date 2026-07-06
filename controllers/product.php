@@ -209,6 +209,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_product'])) {
         exit();
     }
 
+} elseif (isset($_GET['action']) && $_GET['action'] === 'toggle_visibility' && isset($_GET['id'])) {
+    $product_id = (int)($_GET['id'] ?? 0);
+    $showed = isset($_GET['status']) ? (int)$_GET['status'] : null;
+
+    if ($product_id <= 0 || !in_array($showed, [0, 1], true)) {
+        $fallback = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1
+            ? '../views/admin_product.php?error=' . urlencode('Invalid visibility request.')
+            : '../views/user_dashboard.php?error=' . urlencode('Invalid visibility request.');
+        header("Location: $fallback");
+        exit();
+    }
+
+    try {
+        $productRepo = new ProductRepository($conn);
+        $product = $productRepo->getById($product_id);
+
+        if (!$product) {
+            $fallback = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1
+                ? '../views/admin_product.php?error=' . urlencode('Product not found.')
+                : '../views/user_dashboard.php?error=' . urlencode('Product not found.');
+            header("Location: $fallback");
+            exit();
+        }
+
+        $isAdmin = !empty($_SESSION['is_admin']) && (int)$_SESSION['is_admin'] === 1;
+        $isOwner = isset($_SESSION['user_id']) && (int)$product['owner_id'] === (int)$_SESSION['user_id'];
+
+        if (!$isAdmin && !$isOwner) {
+            header("Location: ../views/login.php");
+            exit();
+        }
+
+        $updated = $productRepo->toggleVisibility($product_id, $showed);
+
+        $redirect = isset($_GET['redirect']) ? urldecode($_GET['redirect']) : '';
+        if ($redirect !== '') {
+            $redirect = ltrim(str_replace('../', '', $redirect), '/');
+            header("Location: ../views/" . $redirect);
+            exit();
+        }
+
+        if ($updated) {
+            if ($isAdmin) {
+                header("Location: ../views/admin_product.php?success=" . urlencode('Visibility updated successfully.'));
+            } else {
+                header("Location: ../views/user_dashboard.php?success=" . urlencode('Visibility updated successfully.'));
+            }
+            exit();
+        }
+
+        if ($isAdmin) {
+            header("Location: ../views/admin_product.php?error=" . urlencode('Unable to update visibility.'));
+        } else {
+            header("Location: ../views/user_dashboard.php?error=" . urlencode('Unable to update visibility.'));
+        }
+        exit();
+
+    } catch (PDOException $e) {
+        error_log("Product visibility toggle DB error: " . $e->getMessage());
+        header("Location: ../views/user_dashboard.php?error=" . urlencode('A database error occurred. Please try again.'));
+        exit();
+    }
+
 } elseif (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $product_id = (int)$_GET['id'];
     if ($product_id <= 0) {
