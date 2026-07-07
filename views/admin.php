@@ -304,7 +304,12 @@ $hiddenProducts = $stmtHiddenProducts->fetch()['total'];
         }
 
         .btn-review:hover { opacity: 0.85; }
-        .btn-review svg { width: 16px; height: 16px; }
+        .btn-review svg {
+            width: 16px;
+            height: 16px;
+            color: inherit;
+            flex-shrink: 0;
+        }
 
         @media (max-width: 768px) {
             .pending-alert {
