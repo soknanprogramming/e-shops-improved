@@ -20,11 +20,19 @@ class ProductRepository {
     }
 
     public function search($params = []) {
-        $sql = "SELECT p.*, pi.main_image, c.name as category_name, u.name as owner_name 
+        $sql = "SELECT p.*, pi.main_image, c.name as category_name, u.name as owner_name, 
+                       COALESCE(r.rating_count, 0) AS rating_count, 
+                       COALESCE(r.avg_rating, 0) AS avg_rating 
                 FROM product p 
                 LEFT JOIN product_image pi ON p.product_image_id = pi.id 
                 LEFT JOIN category c ON p.category_id = c.id
                 LEFT JOIN user u ON p.owner_id = u.id
+                LEFT JOIN (
+                    SELECT product_id, COUNT(rating) AS rating_count, AVG(rating) AS avg_rating
+                    FROM product_comments
+                    WHERE rating IS NOT NULL
+                    GROUP BY product_id
+                ) r ON r.product_id = p.id
                 WHERE 1=1";
         
         $args = [];

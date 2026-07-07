@@ -7,14 +7,32 @@ class CommentRepository {
         $this->conn = $conn;
     }
 
-    public function add($productId, $userId, $comment) {
-        $sql = "INSERT INTO product_comments (product_id, user_id, comment) VALUES (:pid, :uid, :comment)";
+    public function add($productId, $userId, $comment, $rating = null) {
+        $sql = "INSERT INTO product_comments (product_id, user_id, comment, rating) VALUES (:pid, :uid, :comment, :rating)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([
-            ':pid' => $productId,
-            ':uid' => $userId,
-            ':comment' => $comment
-        ]);
+
+        try {
+            $stmt->execute([
+                ':pid' => $productId,
+                ':uid' => $userId,
+                ':comment' => $comment,
+                ':rating' => $rating
+            ]);
+        } catch (PDOException $e) {
+            $msg = $e->getMessage();
+            if (stripos($msg, 'unknown column') !== false || stripos($msg, 'column count doesn\'t match') !== false) {
+                $sql = "INSERT INTO product_comments (product_id, user_id, comment) VALUES (:pid, :uid, :comment)";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute([
+                    ':pid' => $productId,
+                    ':uid' => $userId,
+                    ':comment' => $comment
+                ]);
+            } else {
+                throw $e;
+            }
+        }
+
         return $this->conn->lastInsertId();
     }
 

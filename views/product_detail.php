@@ -490,6 +490,9 @@ function formatRelativeTime($value): string {
         .comment-meta { display: flex; align-items: center; gap: .75rem; margin-bottom: .35rem; flex-wrap: wrap; }
         .comment-author { font-weight: 800; font-size: .84rem; color: var(--ink); }
         .comment-time { font-size: .68rem; color: var(--ink-ghost); }
+        .comment-rating { display: flex; align-items: center; gap: 6px; margin-bottom: .45rem; }
+        .comment-rating .star { width: 14px; height: 14px; }
+        .comment-rating-label { font-size: .72rem; color: var(--ink-ghost); font-weight: 700; }
         .comment-text { font-size: .875rem; line-height: 1.7; color: var(--ink-mid); }
         .btn-delete-comment {
             position: absolute; top: 1.25rem; right: 0;
@@ -652,7 +655,17 @@ function formatRelativeTime($value): string {
                                             <span class="comment-author"><?php echo htmlspecialchars($cmt['user_name']); ?></span>
                                             <span class="comment-time"><?php echo formatRelativeTime($cmt['created_at'] ?? null); ?></span>
                                         </div>
-                                        <p class="comment-text"><?php echo nl2br(htmlspecialchars($cmt['comment'])); ?></p>
+                                        <?php if (isset($cmt['rating']) && $cmt['rating'] !== null && $cmt['rating'] !== ''): ?>
+                                            <div class="comment-rating">
+                                                <?php for ($sr = 1; $sr <= 5; $sr++): ?>
+                                                    <svg class="star <?php echo $sr <= (int)$cmt['rating'] ? 'star-full' : 'star-empty'; ?>" viewBox="0 0 24 24" fill="currentColor"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                                                <?php endfor; ?>
+                                                <span class="comment-rating-label"><?php echo (int)$cmt['rating']; ?> / 5</span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (trim($cmt['comment']) !== ''): ?>
+                                            <p class="comment-text"><?php echo nl2br(htmlspecialchars($cmt['comment'])); ?></p>
+                                        <?php endif; ?>
                                     </div>
                                     <?php if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $cmt['user_id'] || $isAdmin)): ?>
                                         <form action="../controllers/comment.php" method="POST"
@@ -677,8 +690,9 @@ function formatRelativeTime($value): string {
                                 <input type="hidden" name="add_comment" value="1">
                                 <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                <textarea name="comment" id="commentText" rows="2"
-                                          placeholder="Share your thoughts…" required
+                                <input type="hidden" name="rating" id="ratingValue" value="">
+                        <textarea name="comment" id="commentText" rows="2"
+                                          placeholder="Share your thoughts…"
                                           oninput="this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,140)+'px'"></textarea>
                                 <button type="submit" class="btn-post-comment">Post</button>
                             </form>
@@ -747,28 +761,41 @@ function formatRelativeTime($value): string {
 
                 <!-- ── Rating section ── -->
                 <?php
-                // Deterministic pseudo-rating based on product ID
-                $pseudoRating = 3.5 + (($product['id'] * 7) % 15) / 10;
-                $pseudoRating = min(5, $pseudoRating);
-                $totalReviews = 12 + ($product['id'] % 40);
-                // Distribute bar heights
-                $bars = [5=>60, 4=>22, 3=>10, 2=>5, 1=>3];
+                $ratingCount = 0;
+                $ratingSum = 0;
+                $ratingBreakdown = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+                foreach ($comments as $cmt) {
+                    if (isset($cmt['rating']) && $cmt['rating'] !== null && $cmt['rating'] !== '') {
+                        $rating = (int)$cmt['rating'];
+                        if ($rating >= 1 && $rating <= 5) {
+                            $ratingCount++;
+                            $ratingSum += $rating;
+                            $ratingBreakdown[$rating]++;
+                        }
+                    }
+                }
+                $avgRating = $ratingCount ? $ratingSum / $ratingCount : 0;
+                $totalReviews = $ratingCount;
+                $bars = [];
+                foreach ($ratingBreakdown as $star => $count) {
+                    $bars[$star] = $totalReviews ? round($count / $totalReviews * 100) : 0;
+                }
                 ?>
                 <div class="rating-section">
                     <div class="rating-header">
                         <span class="rating-title">Customer Ratings</span>
                     </div>
                     <div class="rating-summary">
-                        <span class="rating-big-num"><?php echo number_format($pseudoRating, 1); ?></span>
+                        <span class="rating-big-num"><?php echo number_format($avgRating, 1); ?></span>
                         <div class="rating-stars-col">
                             <div class="stars-row">
                                 <?php for ($s = 1; $s <= 5; $s++): ?>
-                                    <svg class="star <?php echo $s <= floor($pseudoRating) ? 'star-full' : 'star-empty'; ?>" viewBox="0 0 24 24" fill="currentColor">
+                                    <svg class="star <?php echo $s <= floor($avgRating) ? 'star-full' : 'star-empty'; ?>" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                                     </svg>
                                 <?php endfor; ?>
                             </div>
-                            <div class="rating-count-label"><?php echo $totalReviews; ?> ratings</div>
+                            <div class="rating-count-label"><?php echo $totalReviews ? $totalReviews . ' ratings' : 'No ratings yet'; ?></div>
                         </div>
                     </div>
                     <div class="rating-bars">
@@ -778,7 +805,7 @@ function formatRelativeTime($value): string {
                             <div class="rating-bar-track">
                                 <div class="rating-bar-fill" style="width: <?php echo $pct; ?>%" data-width="<?php echo $pct; ?>"></div>
                             </div>
-                            <span class="rating-bar-count"><?php echo round($totalReviews * $pct / 100); ?></span>
+                            <span class="rating-bar-count"><?php echo $ratingBreakdown[$star]; ?></span>
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -957,15 +984,46 @@ function formatRelativeTime($value): string {
             s.style.color = active ? '#e0c55a' : '';
             s.setAttribute('fill', active ? 'currentColor' : 'none');
         });
+        const ratingInput = document.getElementById('ratingValue');
+        if (ratingInput) ratingInput.value = val;
     }
     function submitReview() {
         if (!selectedRating) { showToast('Please select a star rating', 'error'); return; }
-        const text = document.getElementById('reviewText').value.trim();
-        showToast(`Thanks! You rated this ${selectedRating} star${selectedRating > 1 ? 's' : ''}${text ? ' with a review' : ''} ⭐`, 'success');
-        document.getElementById('starPicker').classList.remove('open');
-        selectedRating = 0;
-        document.getElementById('reviewText').value = '';
-        document.querySelectorAll('.star-input').forEach(s => { s.style.color = ''; s.setAttribute('fill','none'); s.classList.remove('selected'); });
+        const reviewText = document.getElementById('reviewText').value.trim();
+        const productId = document.querySelector('input[name="product_id"]').value;
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+        const submitBtn = document.querySelector('.review-submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+
+        const formData = new FormData();
+        formData.append('add_comment', '1');
+        formData.append('product_id', productId);
+        formData.append('csrf_token', csrfToken);
+        formData.append('rating', selectedRating);
+        formData.append('comment', reviewText);
+
+        fetch('../controllers/comment.php', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Thanks! Your rating was saved.', 'success');
+                window.location.reload();
+            } else {
+                showToast(data.error || 'Could not save rating', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Rating';
+            }
+        })
+        .catch(() => {
+            showToast('Network error', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Rating';
+        });
     }
 
     // ── Share / copy link ─────────────────────────────────────────────────────
