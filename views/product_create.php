@@ -458,7 +458,7 @@ $categories = $catRepo->getAll();
             <p>Fill in the details below to list your product</p>
         </div>
 
-        <?php if ($needsPhone && $canPost): ?>
+        <?php if ($needsPhone): ?>
             <div class="alert-block alert-warning" style="margin-bottom:1.25rem;">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
                 <div><strong>Phone number required:</strong> You need to add a phone number to your profile before posting.
@@ -558,12 +558,12 @@ $categories = $catRepo->getAll();
                     </div>
                 </form>
             </div>
-        <?php else: ?>
+        <?php elseif (!$canPost): ?>
             <div class="alert-block">
                 <?php if ($pendingRequest): ?>
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <div><strong>Request Pending:</strong> Your request to post products is waiting for admin approval. We'll notify you once it's approved.</div>
-                <?php else: ?>
+                <?php else : ?>
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                     <div>
                         <strong>Permission Required:</strong> You need posting permission to list products.
@@ -573,6 +573,9 @@ $categories = $catRepo->getAll();
                     </div>
                 <?php endif; ?>
             </div>
+            
+        <?php endif; ?>
+        <?php if (!$canPost || $needsPhone): ?>
             <a href="user_dashboard.php" class="btn-back">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 Back to Dashboard
