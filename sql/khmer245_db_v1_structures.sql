@@ -108,6 +108,7 @@ CREATE TABLE `product_comments` (
   `product_id` int NOT NULL,
   `user_id` int NOT NULL,
   `comment` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rating` tinyint(1) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -130,6 +130,7 @@ CREATE TABLE `product_comments` (
     `product_id` INT NOT NULL,
     `user_id` INT NOT NULL,
     `comment` TEXT NOT NULL,
+    `rating` TINYINT(1) DEFAULT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`product_id`) REFERENCES `Product`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE
